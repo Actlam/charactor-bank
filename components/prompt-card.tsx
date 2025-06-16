@@ -51,22 +51,25 @@ export function PromptCard({ prompt }: PromptCardProps) {
   };
 
   return (
-    <div className="group relative rounded-lg border bg-card p-6 card-interactive animate-fade-in">
-        {/* Category Badge */}
-        {prompt.category && (
-          <div className="absolute top-4 right-4">
-            <Badge variant="secondary" className="text-xs">
-              {prompt.category.icon} {prompt.category.name}
-            </Badge>
-          </div>
-        )}
-
-        {/* Title */}
-        <Link href={`/prompts/${prompt._id}`}>
-          <h3 className="mb-2 text-xl font-semibold group-hover:text-primary line-clamp-1 cursor-pointer transition-smooth">
-            {prompt.title}
-          </h3>
-        </Link>
+    <div className="group relative rounded-lg border bg-card px-5 py-6 card-interactive animate-fade-in">
+        {/* Header area with title and badge */}
+        <div className="flex justify-between items-start gap-3 mb-2">
+          {/* Title */}
+          <Link href={`/prompts/${prompt._id}`} className="flex-1 min-w-0">
+            <h3 className="text-xl font-semibold group-hover:text-primary line-clamp-2 cursor-pointer transition-smooth">
+              {prompt.title}
+            </h3>
+          </Link>
+          
+          {/* Category Badge */}
+          {prompt.category && (
+            <div className="flex-shrink-0">
+              <Badge variant="secondary" className="text-xs shadow-sm">
+                {prompt.category.icon} {prompt.category.name}
+              </Badge>
+            </div>
+          )}
+        </div>
 
         {/* Author and Date */}
         <div className="mb-3 flex items-center gap-4 text-sm text-muted-foreground">
