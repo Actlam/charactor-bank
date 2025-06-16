@@ -51,7 +51,7 @@ export function PromptCard({ prompt }: PromptCardProps) {
   };
 
   return (
-    <div className="group relative rounded-lg border bg-card p-6 transition-all hover:shadow-lg hover:border-primary">
+    <div className="group relative rounded-lg border bg-card p-6 card-interactive animate-fade-in">
         {/* Category Badge */}
         {prompt.category && (
           <div className="absolute top-4 right-4">
@@ -63,7 +63,7 @@ export function PromptCard({ prompt }: PromptCardProps) {
 
         {/* Title */}
         <Link href={`/prompts/${prompt._id}`}>
-          <h3 className="mb-2 text-xl font-semibold group-hover:text-primary line-clamp-1 cursor-pointer">
+          <h3 className="mb-2 text-xl font-semibold group-hover:text-primary line-clamp-1 cursor-pointer transition-smooth">
             {prompt.title}
           </h3>
         </Link>
@@ -125,7 +125,7 @@ export function PromptCard({ prompt }: PromptCardProps) {
             size="sm"
             variant="ghost"
             onClick={handleCopy}
-            className="opacity-0 group-hover:opacity-100 transition-opacity"
+            className="opacity-0 group-hover:opacity-100 transition-smooth hover-scale"
           >
             {copied ? (
               <>

@@ -13,15 +13,15 @@ export default function Home() {
   return (
     <main className="min-h-screen">
       {/* Hero Section */}
-      <section className="bg-gradient-to-b from-primary/10 to-background py-20 px-4">
-        <div className="mx-auto max-w-5xl text-center">
-          <h1 className="mb-6 text-5xl font-bold">
+      <section className="bg-gradient-to-b from-primary/10 to-background section-spacing">
+        <div className="container-standard text-center">
+          <h1 className="mb-6 text-5xl font-bold animate-fade-in">
             AIキャラクタープロンプト共有サービス
           </h1>
-          <p className="mb-8 text-xl text-muted-foreground">
+          <p className="mb-8 text-xl text-muted-foreground animate-slide-up">
             AIにキャラクターになりきってもらうためのプロンプトを作成・共有しよう
           </p>
-          <div className="flex gap-4 justify-center">
+          <div className="flex gap-4 justify-center animate-bounce-subtle">
             <Link href="/prompts/new">
               <Button size="lg">プロンプトを作成</Button>
             </Link>
@@ -35,17 +35,17 @@ export default function Home() {
       </section>
 
       {/* Categories Section */}
-      <section className="py-16 px-4">
-        <div className="mx-auto max-w-6xl">
+      <section className="section-spacing">
+        <div className="container-standard">
           <h2 className="mb-8 text-3xl font-bold text-center">カテゴリ</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 grid-standard">
             {categories?.map((category) => (
               <Link
                 key={category._id}
                 href={`/categories/${category.slug}`}
                 className="group"
               >
-                <div className="rounded-lg border p-6 transition-all hover:shadow-lg hover:border-primary">
+                <div className="rounded-lg border p-6 card-interactive">
                   <div className="mb-3 text-4xl">{category.icon}</div>
                   <h3 className="mb-2 text-xl font-semibold group-hover:text-primary">
                     {category.name}
