@@ -9,6 +9,7 @@
 - **[SPRINT_PLAN.md](./SPRINT_PLAN.md)** - 現在のスプリント計画と進捗管理
 - **[WEEKLY_TASKS.md](./WEEKLY_TASKS.md)** - 週次タスクの詳細管理
 - **[TECHNICAL_DEBT.md](./TECHNICAL_DEBT.md)** - 技術的負債とリファクタリング計画
+- **[IMPLEMENTATION_GUIDE.md](./IMPLEMENTATION_GUIDE.md)** - 実装パターンとコマンド集
 
 ### プロジェクトルート
 - **[../README.md](../README.md)** - プロジェクト概要（Convexテンプレート）
@@ -30,11 +31,11 @@
 │SPRINT  │    │WEEKLY  │  ← 実行計画
 │PLAN.md │    │TASKS.md│
 └────────┘    └─────────┘
-    │
-┌───▼──────────┐
-│TECHNICAL_DEBT│  ← 改善項目
-│.md           │
-└──────────────┘
+    │                │
+┌───▼──────────┐  ┌─▼──────────────┐
+│TECHNICAL_DEBT│  │IMPLEMENTATION  │ ← 参照資料
+│.md           │  │GUIDE.md        │
+└──────────────┘  └────────────────┘
 ```
 
 ## 📅 更新サイクル
