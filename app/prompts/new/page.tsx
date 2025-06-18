@@ -11,11 +11,20 @@ import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { TagInput } from "@/components/tag-input";
+import { ConversationExamplesInput } from "@/components/conversation-examples-input";
 import { Loader2 } from "lucide-react";
+
+interface ConversationExample {
+  id: string;
+  userMessage: string;
+  characterResponse: string;
+  scenario?: string;
+}
 
 export default function NewPromptPage() {
   const router = useRouter();
   const createPrompt = useMutation(api.prompts.createPrompt);
+  const addExample = useMutation(api.prompts.addExample);
   const categories = useQuery(api.categories.getAllCategories);
   const seedCategories = useMutation(api.categories.seedCategories);
 
@@ -30,6 +39,7 @@ export default function NewPromptPage() {
   const [categoryId, setCategoryId] = useState<string>("");
   const [tags, setTags] = useState<string[]>([]);
   const [isPublic, setIsPublic] = useState(true);
+  const [examples, setExamples] = useState<ConversationExample[]>([]);
 
   // Seed categories if none exist
   useEffect(() => {
@@ -66,6 +76,21 @@ export default function NewPromptPage() {
       });
 
       console.log("Created prompt with ID:", promptId);
+
+      // Add conversation examples if any
+      if (examples.length > 0) {
+        console.log("Adding conversation examples...");
+        for (const example of examples) {
+          await addExample({
+            promptId,
+            userMessage: example.userMessage,
+            characterResponse: example.characterResponse,
+            scenario: example.scenario,
+          });
+        }
+        console.log(`Added ${examples.length} conversation examples`);
+      }
+
       router.push(`/prompts/${promptId}`);
     } catch (err) {
       console.error("Error creating prompt:", err);
@@ -157,6 +182,14 @@ export default function NewPromptPage() {
           <Label htmlFor="isPublic">
             公開する（他のユーザーがこのプロンプトを見ることができます）
           </Label>
+        </div>
+
+        <div>
+          <ConversationExamplesInput
+            value={examples}
+            onChange={setExamples}
+            maxExamples={5}
+          />
         </div>
 
         {error && (

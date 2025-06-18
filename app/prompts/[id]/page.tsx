@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { LikeButton } from "@/components/like-button";
 import { BookmarkButton } from "@/components/bookmark-button";
+import { ConversationExamplesDisplay } from "@/components/conversation-examples-display";
 import { ArrowLeft, Copy, Check, Eye } from "lucide-react";
 import { useState } from "react";
 
@@ -121,6 +122,14 @@ export default function PromptDetailPage() {
             {prompt.content}
           </pre>
         </div>
+
+        {prompt.examples && prompt.examples.length > 0 && (
+          <ConversationExamplesDisplay
+            examples={prompt.examples}
+            showScenarios={true}
+            className="mt-6"
+          />
+        )}
 
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 text-sm text-muted-foreground">

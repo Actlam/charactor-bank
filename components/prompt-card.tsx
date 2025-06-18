@@ -5,7 +5,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { LikeButton } from "@/components/like-button";
 import { BookmarkButton } from "@/components/bookmark-button";
-import { Heart, Bookmark, Eye, Copy, Check } from "lucide-react";
+import { ConversationExamplesDisplay } from "@/components/conversation-examples-display";
+import { Heart, Bookmark, Eye, Copy, Check, MessageCircle } from "lucide-react";
 import { useState } from "react";
 import { formatDistanceToNow } from "date-fns";
 import { ja } from "date-fns/locale";
@@ -21,6 +22,13 @@ interface PromptCardProps {
     likeCount: number;
     bookmarkCount: number;
     createdAt: number;
+    examples?: {
+      id: string;
+      userMessage: string;
+      characterResponse: string;
+      scenario?: string;
+      isHighlighted?: boolean;
+    }[];
     author?: {
       username: string;
       displayName?: string;
@@ -101,6 +109,28 @@ export function PromptCard({ prompt }: PromptCardProps) {
               <Badge variant="outline" className="text-xs">
                 +{prompt.tags.length - 3}
               </Badge>
+            )}
+          </div>
+        )}
+
+        {/* Conversation Examples Preview */}
+        {prompt.examples && prompt.examples.length > 0 && (
+          <div className="mb-4">
+            <ConversationExamplesDisplay
+              examples={prompt.examples}
+              maxDisplay={2}
+              showScenarios={false}
+              className=""
+            />
+            {prompt.examples.length > 2 && (
+              <div className="mt-2 text-center">
+                <Link href={`/prompts/${prompt._id}`}>
+                  <Badge variant="outline" className="text-xs hover:bg-primary/10 cursor-pointer">
+                    <MessageCircle className="h-3 w-3 mr-1" />
+                    他 {prompt.examples.length - 2} 個の会話例を見る
+                  </Badge>
+                </Link>
+              </div>
             )}
           </div>
         )}

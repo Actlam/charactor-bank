@@ -35,6 +35,16 @@ export default defineSchema({
     viewCount: v.number(),
     likeCount: v.number(),
     bookmarkCount: v.number(),
+    // 会話例機能
+    examples: v.optional(v.array(v.object({
+      id: v.string(),                    // ユニークID
+      userMessage: v.string(),           // ユーザーの発言 (最大200文字)
+      characterResponse: v.string(),      // キャラクターの返答 (最大500文字)
+      scenario: v.optional(v.string()),   // 場面説明 (最大50文字)
+      createdAt: v.number(),             // 作成日時
+      isHighlighted: v.optional(v.boolean()), // おすすめ例として強調表示
+    }))),
+    exampleCount: v.optional(v.number()), // 例の数（0-5、集計用）
     createdAt: v.number(),
     updatedAt: v.number(),
   })
