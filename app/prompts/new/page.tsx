@@ -202,7 +202,7 @@ export default function NewPromptPage() {
           <Button
             type="submit"
             disabled={isSubmitting || !title || !content}
-            className="flex-1"
+            className="flex-1 btn-pop"
           >
             {isSubmitting ? (
               <>
@@ -218,6 +218,7 @@ export default function NewPromptPage() {
             variant="outline"
             onClick={() => router.back()}
             disabled={isSubmitting}
+            className="btn-secondary-pop"
           >
             キャンセル
           </Button>

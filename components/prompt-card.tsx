@@ -59,7 +59,7 @@ export function PromptCard({ prompt }: PromptCardProps) {
   };
 
   return (
-    <div className="group relative rounded-lg border bg-card px-5 py-6 card-interactive animate-fade-in">
+    <div className="group relative card-pop px-6 py-7 animate-fade-in">
         {/* Header area with title and badge */}
         <div className="flex justify-between items-start gap-3 mb-2">
           {/* Title */}
@@ -158,7 +158,7 @@ export function PromptCard({ prompt }: PromptCardProps) {
             size="sm"
             variant="ghost"
             onClick={handleCopy}
-            className="opacity-0 group-hover:opacity-100 transition-smooth hover-scale"
+            className="opacity-0 group-hover:opacity-100 transition-smooth bg-white border-2 border-primary text-primary hover:bg-primary hover:text-white font-bold px-3 py-2 rounded-lg"
           >
             {copied ? (
               <>

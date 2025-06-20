@@ -11,11 +11,11 @@ export default function Home() {
   const categories = useQuery(api.categories.getAllCategories);
 
   return (
-    <main className="min-h-screen">
+    <main className="min-h-screen clean-bg">
       {/* Hero Section */}
-      <section className="bg-gradient-to-b from-primary/10 to-background section-spacing">
+      <section className="section-spacing">
         <div className="container-standard text-center">
-          <h1 className="mb-6 text-5xl font-bold animate-fade-in">
+          <h1 className="mb-6 text-5xl font-bold animate-fade-in text-pop">
             AIキャラクタープロンプト共有サービス
           </h1>
           <p className="mb-8 text-xl text-muted-foreground animate-slide-up">
@@ -23,10 +23,10 @@ export default function Home() {
           </p>
           <div className="flex gap-4 justify-center animate-bounce-subtle">
             <Link href="/prompts/new">
-              <Button size="lg">プロンプトを作成</Button>
+              <Button size="lg" className="btn-pop">プロンプトを作成</Button>
             </Link>
             <Link href="/explore">
-              <Button size="lg" variant="outline">
+              <Button size="lg" variant="outline" className="btn-secondary-pop">
                 プロンプトを探す
               </Button>
             </Link>
@@ -45,7 +45,7 @@ export default function Home() {
                 href={`/categories/${category.slug}`}
                 className="group"
               >
-                <div className="rounded-lg border p-6 card-interactive">
+                <div className="card-pop p-6">
                   <div className="mb-3 text-4xl">{category.icon}</div>
                   <h3 className="mb-2 text-xl font-semibold group-hover:text-primary">
                     {category.name}
