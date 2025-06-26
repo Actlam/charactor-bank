@@ -98,3 +98,31 @@ export const updateUserProfile = mutation({
     });
   },
 });
+
+export const getUserStats = query({
+  args: { userId: v.id("users") },
+  handler: async (ctx, args) => {
+    const prompts = await ctx.db
+      .query("prompts")
+      .withIndex("by_user", (q) => q.eq("userId", args.userId))
+      .filter((q) => q.eq(q.field("isPublic"), true))
+      .collect();
+
+    let totalLikes = 0;
+    let totalViews = 0;
+    let totalBookmarks = 0;
+
+    for (const prompt of prompts) {
+      totalLikes += prompt.likeCount;
+      totalViews += prompt.viewCount;
+      totalBookmarks += prompt.bookmarkCount;
+    }
+
+    return {
+      promptCount: prompts.length,
+      totalLikes,
+      totalViews,
+      totalBookmarks,
+    };
+  },
+});
