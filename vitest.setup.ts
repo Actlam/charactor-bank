@@ -40,3 +40,19 @@ vi.mock('convex/react', () => ({
 vi.mock('convex/react-clerk', () => ({
   ConvexProviderWithClerk: ({ children }: { children: React.ReactNode }) => children,
 }))
+
+// Mock clipboard globally
+Object.defineProperty(navigator, 'clipboard', {
+  value: {
+    writeText: vi.fn(),
+  },
+  configurable: true,
+})
+
+// Mock sonner
+vi.mock('sonner', () => ({
+  toast: {
+    success: vi.fn(),
+    error: vi.fn(),
+  },
+}))

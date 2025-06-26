@@ -1,5 +1,12 @@
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
+import {
+  requireAuth,
+  throwValidationError,
+  throwNotFoundError,
+  validateString,
+  validateArray,
+} from "./lib/errors";
 
 export const createPrompt = mutation({
   args: {
@@ -11,50 +18,57 @@ export const createPrompt = mutation({
     isPublic: v.boolean(),
   },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) {
-      throw new Error("Unauthenticated");
-    }
+    // 認証チェック
+    const userId = await requireAuth(ctx);
 
-    // Get current user
+    // 現在のユーザーを取得
     const user = await ctx.db
       .query("users")
-      .withIndex("by_clerk_id", (q) => q.eq("clerkId", identity.subject))
+      .withIndex("by_clerk_id", (q) => q.eq("clerkId", userId))
       .unique();
 
     if (!user) {
-      throw new Error("User not found");
+      throwNotFoundError("ユーザー");
     }
 
-    // Validate inputs
-    if (args.title.trim().length === 0) {
-      throw new Error("Title is required");
-    }
+    // 入力値バリデーション
+    const title = validateString(args.title, "タイトル", {
+      required: true,
+      minLength: 3,
+      maxLength: 100,
+    });
 
-    if (args.content.trim().length === 0) {
-      throw new Error("Content is required");
-    }
+    const content = validateString(args.content, "プロンプト内容", {
+      required: true,
+      minLength: 10,
+      maxLength: 5000,
+    });
 
-    if (args.title.length > 100) {
-      throw new Error("Title must be 100 characters or less");
-    }
+    const description = validateString(args.description, "説明", {
+      maxLength: 500,
+    });
 
-    if (args.description && args.description.length > 500) {
-      throw new Error("Description must be 500 characters or less");
-    }
+    const tags = validateArray(args.tags, "タグ", {
+      maxItems: 10,
+    });
 
-    if (args.tags.length > 10) {
-      throw new Error("Maximum 10 tags allowed");
-    }
+    // タグの個別バリデーション
+    const validatedTags = tags?.map((tag, index) => {
+      const trimmedTag = validateString(tag, `タグ${index + 1}`, {
+        required: true,
+        maxLength: 20,
+      });
+      return trimmedTag!.toLowerCase();
+    }).filter((tag, index, arr) => arr.indexOf(tag) === index) || []; // 重複除去
 
-    // Create prompt
+    // プロンプトを作成
     const promptId = await ctx.db.insert("prompts", {
       userId: user._id,
-      title: args.title.trim(),
-      description: args.description?.trim(),
-      content: args.content.trim(),
+      title: title!,
+      description,
+      content: content!,
       categoryId: args.categoryId,
-      tags: args.tags.map(tag => tag.trim().toLowerCase()).filter(tag => tag.length > 0),
+      tags: validatedTags,
       isPublic: args.isPublic,
       viewCount: 0,
       likeCount: 0,

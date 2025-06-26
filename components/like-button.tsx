@@ -9,6 +9,9 @@ import { cn } from "@/lib/utils";
 import { useAuth } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import { Id } from "@/convex/_generated/dataModel";
+import { useErrorHandler } from "@/hooks/use-error-handler";
+import { AuthenticationError, NetworkError } from "@/lib/errors";
+import { toast } from "sonner";
 
 interface LikeButtonProps {
   promptId: Id<"prompts">;
@@ -25,6 +28,11 @@ export function LikeButton({
 }: LikeButtonProps) {
   const { isSignedIn } = useAuth();
   const router = useRouter();
+  const { handleError } = useErrorHandler({
+    showToast: true,
+    redirectOnAuth: true,
+    context: { promptId: promptId as string, action: 'like' },
+  });
   const [isLoading, setIsLoading] = useState(false);
   const [optimisticLiked, setOptimisticLiked] = useState<boolean | null>(null);
   const [optimisticCount, setOptimisticCount] = useState(initialLikeCount);
@@ -39,7 +47,7 @@ export function LikeButton({
     e.stopPropagation();
 
     if (!isSignedIn) {
-      router.push("/sign-in");
+      handleError(new AuthenticationError("いいねするにはログインが必要です"));
       return;
     }
 
@@ -54,11 +62,24 @@ export function LikeButton({
 
     try {
       await toggleLike({ promptId });
+      
+      // 成功メッセージ
+      if (newLikedState) {
+        toast.success("いいねしました");
+      } else {
+        toast.success("いいねを取り消しました");
+      }
     } catch (error) {
       // Revert optimistic update on error
       setOptimisticLiked(!newLikedState);
       setOptimisticCount(initialLikeCount);
-      console.error("Failed to toggle like:", error);
+      
+      // エラーハンドリング
+      if (error instanceof Error && error.message.includes('fetch')) {
+        handleError(new NetworkError("ネットワークエラーが発生しました"));
+      } else {
+        handleError(error as Error);
+      }
     } finally {
       setIsLoading(false);
     }
