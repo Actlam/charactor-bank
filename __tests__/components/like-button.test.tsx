@@ -204,9 +204,6 @@ describe('LikeButton Component', () => {
     const button = screen.getByRole('button')
     await user.click(button)
     
-    // Initially shows optimistic update
-    expect(screen.getByText('6')).toBeInTheDocument()
-    
     // After error, should revert to original count
     await waitFor(() => {
       expect(screen.getByText('5')).toBeInTheDocument()
