@@ -1,7 +1,8 @@
 "use client";
 
-import { useUser, useClerk } from "@clerk/nextjs";
+import { useClerk } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
+import { useCurrentUser } from "@/hooks/use-current-user";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,30 +15,28 @@ import { User, Settings, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export function UserButton() {
-  const { user } = useUser();
+  const { user, isLoading } = useCurrentUser();
   const { signOut } = useClerk();
   const router = useRouter();
 
-  if (!user) return null;
+  if (isLoading || !user) return null;
 
   const handleSignOut = () => {
     signOut(() => router.push("/"));
   };
 
   const handleProfileClick = () => {
-    if (user.username) {
-      router.push(`/users/${user.username}`);
-    }
+    router.push(`/users/${user.username}`);
   };
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="relative h-10 w-10 rounded-full">
-          {user.imageUrl ? (
+          {user.avatarUrl ? (
             <img
-              src={user.imageUrl}
-              alt={user.fullName || user.username || "User"}
+              src={user.avatarUrl}
+              alt={user.displayName || user.username || "User"}
               className="h-10 w-10 rounded-full object-cover"
             />
           ) : (
@@ -51,10 +50,10 @@ export function UserButton() {
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
             <p className="text-sm font-medium leading-none">
-              {user.fullName || user.username}
+              {user.displayName || user.username}
             </p>
             <p className="text-xs leading-none text-muted-foreground">
-              {user.primaryEmailAddress?.emailAddress}
+              {user.email}
             </p>
           </div>
         </DropdownMenuLabel>

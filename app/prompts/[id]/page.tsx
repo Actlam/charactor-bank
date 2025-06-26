@@ -8,15 +8,19 @@ import { Badge } from "@/components/ui/badge";
 import { LikeButton } from "@/components/like-button";
 import { BookmarkButton } from "@/components/bookmark-button";
 import { ConversationExamplesDisplay } from "@/components/conversation-examples-display";
-import { ArrowLeft, Copy, Check, Eye } from "lucide-react";
+import { DeletePromptDialog } from "@/components/delete-prompt-dialog";
+import { useCurrentUser } from "@/hooks/use-current-user";
+import { ArrowLeft, Copy, Check, Eye, Edit } from "lucide-react";
 import { useState } from "react";
+import Link from "next/link";
 
 export default function PromptDetailPage() {
   const params = useParams();
   const router = useRouter();
   const promptId = params.id as string;
   const [copied, setCopied] = useState(false);
-
+  
+  const { user } = useCurrentUser();
   const prompt = useQuery(api.prompts.getPromptById, {
     promptId: promptId as any,
   });
@@ -27,6 +31,14 @@ export default function PromptDetailPage() {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     }
+  };
+
+  // Check if current user is the author
+  const isAuthor = user && prompt?.author && user.clerkId === prompt.author.clerkId;
+
+  const handleDeleteSuccess = () => {
+    // 削除成功後はホームページに遷移
+    router.push("/");
   };
 
   if (prompt === undefined) {
@@ -68,10 +80,28 @@ export default function PromptDetailPage() {
       </Button>
 
       <div className="space-y-6">
-        <div>
-          <h1 className="mb-2 text-3xl font-bold">{prompt.title}</h1>
-          {prompt.description && (
-            <p className="text-lg text-muted-foreground">{prompt.description}</p>
+        <div className="flex items-start justify-between">
+          <div>
+            <h1 className="mb-2 text-3xl font-bold">{prompt.title}</h1>
+            {prompt.description && (
+              <p className="text-lg text-muted-foreground">{prompt.description}</p>
+            )}
+          </div>
+          
+          {isAuthor && (
+            <div className="flex gap-2">
+              <Link href={`/prompts/${promptId}/edit`}>
+                <Button size="sm" variant="outline">
+                  <Edit className="mr-2 h-4 w-4" />
+                  編集
+                </Button>
+              </Link>
+              <DeletePromptDialog
+                promptId={promptId}
+                promptTitle={prompt.title}
+                onSuccess={handleDeleteSuccess}
+              />
+            </div>
           )}
         </div>
 
