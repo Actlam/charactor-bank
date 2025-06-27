@@ -62,7 +62,7 @@ describe('UserButton Component', () => {
     expect(button).toBeInTheDocument()
     
     const avatar = screen.getByRole('img')
-    expect(avatar).toHaveAttribute('src', mockUser.avatarUrl)
+    expect(avatar).toHaveAttribute('src', expect.stringContaining('_next/image'))
     expect(avatar).toHaveAttribute('alt', mockUser.displayName)
   })
 

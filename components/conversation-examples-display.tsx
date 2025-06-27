@@ -28,8 +28,8 @@ export function ConversationExamplesDisplay({
     return null;
   }
 
-  const displayExamples = maxDisplay ? examples.slice(0, maxDisplay) : examples;
-  const hasMore = maxDisplay && examples.length > maxDisplay;
+  const displayExamples = maxDisplay !== undefined ? examples.slice(0, maxDisplay) : examples;
+  const hasMore = maxDisplay !== undefined && examples.length > maxDisplay;
 
   return (
     <div className={className}>

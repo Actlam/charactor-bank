@@ -13,7 +13,9 @@
     "test": "vitest",
     "test:watch": "vitest",
     "test:coverage": "vitest --coverage",
-    "test:ui": "vitest --ui"
+    "test:ui": "vitest --ui",
+    "check": "next lint && vitest run --no-coverage",
+    "prepare": "husky install"
   },
   "dependencies": {
     "@clerk/clerk-react": "^5.25.0",
@@ -52,6 +54,7 @@
     "prettier": "^3.5.3",
     "tailwindcss": "^4",
     "typescript": "^5",
-    "vitest": "^3.2.3"
+    "vitest": "^3.2.3",
+    "husky": "^8.0.0"
   }
 }
