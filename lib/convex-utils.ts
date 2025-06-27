@@ -1,5 +1,5 @@
 import { useMutation as useConvexMutation } from 'convex/react';
-import { FunctionReference } from 'convex/server';
+import { FunctionReference, FunctionReturnType } from 'convex/server';
 import { useErrorHandler } from '@/hooks/use-error-handler';
 import { ConvexErrorHandler } from '@/lib/errors/api-handler';
 import { toast } from 'sonner';
@@ -10,7 +10,7 @@ import { toast } from 'sonner';
 export function useMutation<Mutation extends FunctionReference<'mutation'>>(
   mutation: Mutation,
   options?: {
-    onSuccess?: (result: any) => void;
+    onSuccess?: (result: FunctionReturnType<Mutation>) => void;
     onError?: (error: Error) => void;
     showToast?: boolean;
     successMessage?: string;

@@ -42,7 +42,7 @@ export function ConversationExamplesDisplay({
       </div>
       
       <div className="space-y-4">
-        {displayExamples.map((example, index) => (
+        {displayExamples.map((example) => (
           <div 
             key={example.id} 
             className={`relative rounded-lg border bg-card p-4 ${example.isHighlighted ? 'ring-2 ring-primary/30 border-primary/50' : ''}`}

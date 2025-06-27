@@ -87,7 +87,7 @@ export class ConvexErrorHandler {
 /**
  * useMutation のエラーハンドリングラッパー
  */
-export function createMutationHandler<TArgs extends Record<string, any>, TResult>(
+export function createMutationHandler<TArgs extends Record<string, unknown>, TResult>(
   mutation: (args: TArgs) => Promise<TResult>,
   options?: {
     onSuccess?: (result: TResult) => void;

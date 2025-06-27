@@ -11,11 +11,11 @@ import { ConversationExamplesDisplay } from "@/components/conversation-examples-
 import { DeletePromptDialog } from "@/components/delete-prompt-dialog";
 import { useCurrentUser } from "@/hooks/use-current-user";
 import { useErrorHandler } from "@/hooks/use-error-handler";
-import { ValidationError } from "@/lib/errors";
-import { ArrowLeft, Copy, Check, Eye, Edit, AlertCircle } from "lucide-react";
+import { ArrowLeft, Copy, Check, Eye, Edit } from "lucide-react";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { toast } from "sonner";
+import { Id } from "@/convex/_generated/dataModel";
 
 export default function PromptDetailPage() {
   const params = useParams();
@@ -29,14 +29,14 @@ export default function PromptDetailPage() {
   
   const { user } = useCurrentUser();
   const prompt = useQuery(api.prompts.getPromptById, {
-    promptId: promptId as any,
+    promptId: promptId as Id<"prompts">,
   });
 
   // プロンプトIDのバリデーション
   useEffect(() => {
     if (!promptId || typeof promptId !== 'string') {
       handleError(
-        new ValidationError('無効なプロンプトIDです', 'promptId', promptId)
+        new Error('無効なプロンプトIDです')
       );
       router.push('/');
     }
@@ -53,7 +53,7 @@ export default function PromptDetailPage() {
       setCopied(true);
       toast.success('プロンプトをコピーしました');
       setTimeout(() => setCopied(false), 2000);
-    } catch (error) {
+    } catch {
       handleError(new Error('クリップボードへのコピーに失敗しました'));
     }
   };
@@ -193,11 +193,11 @@ export default function PromptDetailPage() {
           </div>
           <div className="flex items-center gap-2">
             <LikeButton 
-              promptId={prompt._id as any}
+              promptId={prompt._id as Id<"prompts">}
               initialLikeCount={prompt.likeCount}
             />
             <BookmarkButton 
-              promptId={prompt._id as any}
+              promptId={prompt._id as Id<"prompts">}
               initialBookmarkCount={prompt.bookmarkCount}
             />
           </div>

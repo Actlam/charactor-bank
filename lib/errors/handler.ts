@@ -1,5 +1,5 @@
 import * as Sentry from '@sentry/nextjs';
-import { ErrorContext, BaseError, ErrorCategory, ErrorSeverity } from './types';
+import { ErrorContext, BaseError, ErrorSeverity } from './types';
 
 /**
  * エラーハンドリングの設定
@@ -32,7 +32,7 @@ class ErrorHandler {
   public handle(
     error: Error | BaseError,
     context?: ErrorContext,
-    additionalData?: Record<string, any>
+    additionalData?: Record<string, string | number | boolean | null>
   ): void {
     // エラーコンテキストの構築
     const errorContext = this.buildErrorContext(error, context, additionalData);
@@ -69,8 +69,8 @@ class ErrorHandler {
   private buildErrorContext(
     error: Error | BaseError,
     context?: ErrorContext,
-    additionalData?: Record<string, any>
-  ): Record<string, any> {
+    additionalData?: Record<string, string | number | boolean | null>
+  ): Record<string, unknown> {
     const baseContext = {
       timestamp: new Date().toISOString(),
       userAgent: typeof window !== 'undefined' ? window.navigator.userAgent : undefined,
@@ -82,9 +82,9 @@ class ErrorHandler {
     if (error instanceof BaseError) {
       return {
         ...baseContext,
-        category: error.category,
-        severity: error.severity,
-        errorContext: error.context,
+        category: String(error.category),
+        severity: String(error.severity),
+        errorContext: JSON.stringify(error.context),
       };
     }
 
@@ -94,12 +94,8 @@ class ErrorHandler {
   /**
    * コンソールにログ出力
    */
-  private logToConsole(error: Error | BaseError, context: Record<string, any>): void {
+  private logToConsole(error: Error | BaseError, context: Record<string, unknown>): void {
     const isBaseError = error instanceof BaseError;
-    const severity = isBaseError ? error.severity : ErrorSeverity.MEDIUM;
-
-    // エラーレベルに応じてログメソッドを変更
-    const logMethod = this.getLogMethod(severity);
 
     console.group(`🚨 ${error.name}: ${error.message}`);
     
@@ -120,7 +116,7 @@ class ErrorHandler {
   /**
    * Sentryにエラーを送信
    */
-  private sendToSentry(error: Error | BaseError, context: Record<string, any>): void {
+  private sendToSentry(error: Error | BaseError, context: Record<string, unknown>): void {
     // エラーレベルの設定
     const sentryLevel = this.getSentryLevel(error);
 
@@ -140,7 +136,7 @@ class ErrorHandler {
 
       // ユーザー情報の設定
       if (context.userId) {
-        scope.setUser({ id: context.userId });
+        scope.setUser({ id: String(context.userId) });
       }
 
       // エラーの送信
@@ -215,7 +211,7 @@ export const errorHandler = new ErrorHandler();
 export function handleError(
   error: Error | BaseError,
   context?: ErrorContext,
-  additionalData?: Record<string, any>
+  additionalData?: Record<string, string | number | boolean | null>
 ): void {
   errorHandler.handle(error, context, additionalData);
 }

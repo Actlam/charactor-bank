@@ -47,9 +47,9 @@ export default function LikesPage() {
               {likedPrompts.length}件のいいね
             </p>
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {likedPrompts.map((prompt) => (
-                <PromptCard key={prompt._id} prompt={prompt} />
-              ))}
+              {likedPrompts.map((prompt) => 
+                prompt && <PromptCard key={prompt._id} prompt={prompt} />
+              )}
             </div>
           </>
         )}

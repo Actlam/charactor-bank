@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Loader2, Search } from "lucide-react";
+import { Id } from "@/convex/_generated/dataModel";
 
 export default function ExplorePage() {
   const [sortBy, setSortBy] = useState<"recent" | "popular">("recent");
@@ -26,7 +27,7 @@ export default function ExplorePage() {
       ? { searchTerm, limit: 50 }
       : { 
           sortBy, 
-          categoryId: categoryId ? (categoryId as any) : undefined,
+          categoryId: categoryId ? (categoryId as Id<"categories">) : undefined,
           limit: 50 
         }
   );

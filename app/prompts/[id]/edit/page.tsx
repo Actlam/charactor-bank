@@ -11,16 +11,10 @@ import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { TagInput } from "@/components/tag-input";
-import { ConversationExamplesInput } from "@/components/conversation-examples-input";
 import { useCurrentUser } from "@/hooks/use-current-user";
 import { Loader2, ArrowLeft } from "lucide-react";
+import { Id } from "@/convex/_generated/dataModel";
 
-interface ConversationExample {
-  id: string;
-  userMessage: string;
-  characterResponse: string;
-  scenario?: string;
-}
 
 export default function EditPromptPage() {
   const params = useParams();
@@ -29,7 +23,7 @@ export default function EditPromptPage() {
   
   const { user } = useCurrentUser();
   const prompt = useQuery(api.prompts.getPromptById, {
-    promptId: promptId as any,
+    promptId: promptId as Id<"prompts">,
   });
   const updatePrompt = useMutation(api.prompts.updatePrompt);
   const categories = useQuery(api.categories.getAllCategories);
@@ -45,7 +39,6 @@ export default function EditPromptPage() {
   const [categoryId, setCategoryId] = useState<string>("");
   const [tags, setTags] = useState<string[]>([]);
   const [isPublic, setIsPublic] = useState(true);
-  const [examples, setExamples] = useState<ConversationExample[]>([]);
 
   // Load existing prompt data
   useEffect(() => {
@@ -57,15 +50,7 @@ export default function EditPromptPage() {
       setTags(prompt.tags);
       setIsPublic(prompt.isPublic);
       
-      // Convert examples format
-      if (prompt.examples) {
-        setExamples(prompt.examples.map(ex => ({
-          id: ex.id,
-          userMessage: ex.userMessage,
-          characterResponse: ex.characterResponse,
-          scenario: ex.scenario,
-        })));
-      }
+      // 会話例の機能は今後実装予定
       
       setIsLoaded(true);
     }
@@ -123,11 +108,11 @@ export default function EditPromptPage() {
 
     try {
       await updatePrompt({
-        promptId: promptId as any,
+        promptId: promptId as Id<"prompts">,
         title,
         description: description || undefined,
         content,
-        categoryId: categoryId ? (categoryId as any) : null,
+        categoryId: categoryId ? (categoryId as Id<"categories">) : null,
         tags,
         isPublic,
       });

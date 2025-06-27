@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import { Heart, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@clerk/nextjs";
-import { useRouter } from "next/navigation";
 import { Id } from "@/convex/_generated/dataModel";
 import { useErrorHandler } from "@/hooks/use-error-handler";
 import { AuthenticationError, NetworkError } from "@/lib/errors";
@@ -27,7 +26,6 @@ export function LikeButton({
   showCount = true 
 }: LikeButtonProps) {
   const { isSignedIn } = useAuth();
-  const router = useRouter();
   const { handleError } = useErrorHandler({
     showToast: true,
     redirectOnAuth: true,

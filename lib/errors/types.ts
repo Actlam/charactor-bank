@@ -33,8 +33,8 @@ export interface ErrorContext {
   userId?: string;
   promptId?: string;
   action?: string;
-  timestamp?: Date;
-  metadata?: Record<string, any>;
+  timestamp?: string;
+  metadata?: Record<string, string | number | boolean | null>;
 }
 
 /**
@@ -70,12 +70,12 @@ export class BaseError extends Error {
  */
 export class ValidationError extends BaseError {
   public readonly field?: string;
-  public readonly value?: any;
+  public readonly value?: unknown;
 
   constructor(
     message: string,
     field?: string,
-    value?: any,
+    value?: unknown,
     context?: ErrorContext
   ) {
     super(message, ErrorCategory.VALIDATION, ErrorSeverity.LOW, context);
@@ -214,6 +214,6 @@ export interface ErrorResponse {
     severity: ErrorSeverity;
     timestamp: string;
     context?: ErrorContext;
-    details?: any;
+    details?: Record<string, unknown>;
   };
 }

@@ -21,7 +21,7 @@ export default function Error({
     // エラーハンドラーに送信
     handleError(error, {
       action: 'page-error',
-      timestamp: new Date(),
+      timestamp: new Date().toISOString(),
     });
   }, [error]);
 

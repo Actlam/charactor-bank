@@ -9,6 +9,7 @@ import { Loader2, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { Select } from "@/components/ui/select";
+import { Id } from "@/convex/_generated/dataModel";
 
 export default function CategoryPage() {
   const params = useParams();
@@ -23,7 +24,7 @@ export default function CategoryPage() {
   const prompts = useQuery(
     api.prompts.getPublicPrompts,
     category ? { 
-      categoryId: category._id as any,
+      categoryId: category._id as Id<"categories">,
       sortBy,
       limit: 50 
     } : "skip"

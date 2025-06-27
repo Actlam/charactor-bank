@@ -11,27 +11,18 @@ import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { TagInput } from "@/components/tag-input";
-import { ConversationExamplesInput } from "@/components/conversation-examples-input";
-import { useErrorHandler, useTryCatch } from "@/hooks/use-error-handler";
-import { ValidationError, BusinessLogicError } from "@/lib/errors";
-import { createMutationHandler } from "@/lib/errors/api-handler";
+import { useTryCatch } from "@/hooks/use-error-handler";
+import { BusinessLogicError } from "@/lib/errors";
 import { Loader2, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
+import { Id } from "@/convex/_generated/dataModel";
 
-interface ConversationExample {
-  id: string;
-  userMessage: string;
-  characterResponse: string;
-  scenario?: string;
-}
 
 export default function NewPromptPage() {
   const router = useRouter();
-  const { handleError } = useErrorHandler({ showToast: true });
   const { tryAsync } = useTryCatch();
   
   const createPrompt = useMutation(api.prompts.createPrompt);
-  const addExample = useMutation(api.prompts.addExample);
   const categories = useQuery(api.categories.getAllCategories);
   const seedCategories = useMutation(api.categories.seedCategories);
 
@@ -46,7 +37,6 @@ export default function NewPromptPage() {
   const [categoryId, setCategoryId] = useState<string>("");
   const [tags, setTags] = useState<string[]>([]);
   const [isPublic, setIsPublic] = useState(true);
-  const [examples, setExamples] = useState<ConversationExample[]>([]);
 
   // Seed categories if none exist
   useEffect(() => {
@@ -102,14 +92,14 @@ export default function NewPromptPage() {
 
     setIsSubmitting(true);
 
-    const result = await tryAsync(
+    await tryAsync(
       async () => {
         // プロンプト作成
         const promptId = await createPrompt({
           title,
           description: description || undefined,
           content,
-          categoryId: categoryId ? (categoryId as any) : undefined,
+          categoryId: categoryId ? (categoryId as Id<"categories">) : undefined,
           tags,
           isPublic,
         });
@@ -118,19 +108,7 @@ export default function NewPromptPage() {
           throw new BusinessLogicError("プロンプトの作成に失敗しました");
         }
 
-        // 会話例の追加
-        if (examples.length > 0) {
-          const examplePromises = examples.map((example) =>
-            addExample({
-              promptId,
-              userMessage: example.userMessage,
-              characterResponse: example.characterResponse,
-              scenario: example.scenario,
-            })
-          );
-
-          await Promise.all(examplePromises);
-        }
+        // 会話例の追加機能は今後実装予定
 
         return promptId;
       },
@@ -139,7 +117,7 @@ export default function NewPromptPage() {
           toast.success("プロンプトを作成しました");
           router.push(`/prompts/${promptId}`);
         },
-        onError: (error) => {
+        onError: () => {
           setIsSubmitting(false);
           // エラーは useErrorHandler で自動的に処理される
         },
@@ -251,13 +229,7 @@ export default function NewPromptPage() {
           </Label>
         </div>
 
-        <div>
-          <ConversationExamplesInput
-            value={examples}
-            onChange={setExamples}
-            maxExamples={5}
-          />
-        </div>
+        {/* 会話例の入力機能は今後実装予定 */}
 
         {Object.keys(validationErrors).length > 0 && (
           <div className="rounded-md bg-destructive/10 p-3">
