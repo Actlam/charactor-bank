@@ -3,7 +3,6 @@
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { PromptCard } from "@/components/prompt-card";
 import { User, Calendar, FileText, Heart, Eye, Bookmark, Edit } from "lucide-react";
@@ -12,6 +11,7 @@ import { ja } from "date-fns/locale";
 import { useUser } from "@clerk/nextjs";
 import { useParams } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 
 export default function UserProfilePage() {
   const params = useParams();
@@ -72,9 +72,11 @@ export default function UserProfilePage() {
           {/* アバター */}
           <div className="flex-shrink-0">
             {user.avatarUrl ? (
-              <img
+              <Image
                 src={user.avatarUrl}
                 alt={user.displayName || user.username}
+                width={96}
+                height={96}
                 className="w-24 h-24 rounded-full object-cover"
               />
             ) : (

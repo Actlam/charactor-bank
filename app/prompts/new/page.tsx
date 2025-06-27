@@ -11,25 +11,23 @@ import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { TagInput } from "@/components/tag-input";
-import { ConversationExamplesInput } from "@/components/conversation-examples-input";
-import { Loader2 } from "lucide-react";
+import { useTryCatch } from "@/hooks/use-error-handler";
+import { BusinessLogicError } from "@/lib/errors";
+import { Loader2, AlertCircle } from "lucide-react";
+import { toast } from "sonner";
+import { Id } from "@/convex/_generated/dataModel";
 
-interface ConversationExample {
-  id: string;
-  userMessage: string;
-  characterResponse: string;
-  scenario?: string;
-}
 
 export default function NewPromptPage() {
   const router = useRouter();
+  const { tryAsync } = useTryCatch();
+  
   const createPrompt = useMutation(api.prompts.createPrompt);
-  const addExample = useMutation(api.prompts.addExample);
   const categories = useQuery(api.categories.getAllCategories);
   const seedCategories = useMutation(api.categories.seedCategories);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
   const [isSeeding, setIsSeeding] = useState(false);
 
   // Form state
@@ -39,7 +37,6 @@ export default function NewPromptPage() {
   const [categoryId, setCategoryId] = useState<string>("");
   const [tags, setTags] = useState<string[]>([]);
   const [isPublic, setIsPublic] = useState(true);
-  const [examples, setExamples] = useState<ConversationExample[]>([]);
 
   // Seed categories if none exist
   useEffect(() => {
@@ -51,52 +48,81 @@ export default function NewPromptPage() {
     }
   }, [categories, seedCategories, isSeeding]);
 
+  // バリデーション関数
+  const validateForm = (): boolean => {
+    const errors: Record<string, string> = {};
+
+    if (!title.trim()) {
+      errors.title = "タイトルは必須です";
+    } else if (title.length < 3) {
+      errors.title = "タイトルは3文字以上にしてください";
+    } else if (title.length > 100) {
+      errors.title = "タイトルは100文字以内にしてください";
+    }
+
+    if (!content.trim()) {
+      errors.content = "プロンプト内容は必須です";
+    } else if (content.length < 10) {
+      errors.content = "プロンプト内容は10文字以上にしてください";
+    } else if (content.length > 5000) {
+      errors.content = "プロンプト内容は5000文字以内にしてください";
+    }
+
+    if (description && description.length > 500) {
+      errors.description = "説明は500文字以内にしてください";
+    }
+
+    if (tags.length > 10) {
+      errors.tags = "タグは10個以内にしてください";
+    }
+
+    setValidationErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
+    setValidationErrors({});
+
+    // バリデーション
+    if (!validateForm()) {
+      toast.error("入力内容を確認してください");
+      return;
+    }
+
     setIsSubmitting(true);
 
-    console.log("Submitting prompt with data:", {
-      title,
-      description: description || undefined,
-      content,
-      categoryId: categoryId ? (categoryId as any) : undefined,
-      tags,
-      isPublic,
-    });
+    await tryAsync(
+      async () => {
+        // プロンプト作成
+        const promptId = await createPrompt({
+          title,
+          description: description || undefined,
+          content,
+          categoryId: categoryId ? (categoryId as Id<"categories">) : undefined,
+          tags,
+          isPublic,
+        });
 
-    try {
-      const promptId = await createPrompt({
-        title,
-        description: description || undefined,
-        content,
-        categoryId: categoryId ? (categoryId as any) : undefined,
-        tags,
-        isPublic,
-      });
-
-      console.log("Created prompt with ID:", promptId);
-
-      // Add conversation examples if any
-      if (examples.length > 0) {
-        console.log("Adding conversation examples...");
-        for (const example of examples) {
-          await addExample({
-            promptId,
-            userMessage: example.userMessage,
-            characterResponse: example.characterResponse,
-            scenario: example.scenario,
-          });
+        if (!promptId) {
+          throw new BusinessLogicError("プロンプトの作成に失敗しました");
         }
-        console.log(`Added ${examples.length} conversation examples`);
-      }
 
-      router.push(`/prompts/${promptId}`);
-    } catch (err) {
-      console.error("Error creating prompt:", err);
-      setError(err instanceof Error ? err.message : "エラーが発生しました");
-      setIsSubmitting(false);
-    }
+        // 会話例の追加機能は今後実装予定
+
+        return promptId;
+      },
+      {
+        onSuccess: (promptId) => {
+          toast.success("プロンプトを作成しました");
+          router.push(`/prompts/${promptId}`);
+        },
+        onError: () => {
+          setIsSubmitting(false);
+          // エラーは useErrorHandler で自動的に処理される
+        },
+      }
+    );
   };
 
   return (
@@ -114,10 +140,16 @@ export default function NewPromptPage() {
             placeholder="例: 優しい秘書のアシスタント"
             maxLength={100}
             required
+            className={validationErrors.title ? "border-destructive" : ""}
           />
-          <p className="mt-1 text-sm text-muted-foreground">
-            {title.length}/100
-          </p>
+          <div className="mt-1 flex justify-between">
+            <p className="text-sm text-muted-foreground">
+              {title.length}/100
+            </p>
+            {validationErrors.title && (
+              <p className="text-sm text-destructive">{validationErrors.title}</p>
+            )}
+          </div>
         </div>
 
         <div>
@@ -129,10 +161,16 @@ export default function NewPromptPage() {
             placeholder="このプロンプトの簡単な説明を入力してください"
             rows={3}
             maxLength={500}
+            className={validationErrors.description ? "border-destructive" : ""}
           />
-          <p className="mt-1 text-sm text-muted-foreground">
-            {description.length}/500
-          </p>
+          <div className="mt-1 flex justify-between">
+            <p className="text-sm text-muted-foreground">
+              {description.length}/500
+            </p>
+            {validationErrors.description && (
+              <p className="text-sm text-destructive">{validationErrors.description}</p>
+            )}
+          </div>
         </div>
 
         <div>
@@ -144,7 +182,11 @@ export default function NewPromptPage() {
             placeholder="AIに指示する内容を入力してください&#10;例: あなたは優しく丁寧な秘書です。..."
             rows={10}
             required
+            className={validationErrors.content ? "border-destructive" : ""}
           />
+          {validationErrors.content && (
+            <p className="mt-1 text-sm text-destructive">{validationErrors.content}</p>
+          )}
         </div>
 
         <div>
@@ -171,6 +213,9 @@ export default function NewPromptPage() {
             placeholder="タグを入力してEnterで追加（最大10個）"
             maxTags={10}
           />
+          {validationErrors.tags && (
+            <p className="mt-1 text-sm text-destructive">{validationErrors.tags}</p>
+          )}
         </div>
 
         <div className="flex items-center space-x-2">
@@ -184,17 +229,16 @@ export default function NewPromptPage() {
           </Label>
         </div>
 
-        <div>
-          <ConversationExamplesInput
-            value={examples}
-            onChange={setExamples}
-            maxExamples={5}
-          />
-        </div>
+        {/* 会話例の入力機能は今後実装予定 */}
 
-        {error && (
-          <div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive">
-            {error}
+        {Object.keys(validationErrors).length > 0 && (
+          <div className="rounded-md bg-destructive/10 p-3">
+            <div className="flex items-center gap-2">
+              <AlertCircle className="h-4 w-4 text-destructive" />
+              <span className="text-sm font-medium text-destructive">
+                入力内容にエラーがあります
+              </span>
+            </div>
           </div>
         )}
 

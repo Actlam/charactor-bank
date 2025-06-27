@@ -10,26 +10,51 @@ import { BookmarkButton } from "@/components/bookmark-button";
 import { ConversationExamplesDisplay } from "@/components/conversation-examples-display";
 import { DeletePromptDialog } from "@/components/delete-prompt-dialog";
 import { useCurrentUser } from "@/hooks/use-current-user";
+import { useErrorHandler } from "@/hooks/use-error-handler";
 import { ArrowLeft, Copy, Check, Eye, Edit } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
+import { toast } from "sonner";
+import { Id } from "@/convex/_generated/dataModel";
 
 export default function PromptDetailPage() {
   const params = useParams();
   const router = useRouter();
   const promptId = params.id as string;
   const [copied, setCopied] = useState(false);
+  const { handleError } = useErrorHandler({
+    showToast: true,
+    context: { promptId },
+  });
   
   const { user } = useCurrentUser();
   const prompt = useQuery(api.prompts.getPromptById, {
-    promptId: promptId as any,
+    promptId: promptId as Id<"prompts">,
   });
 
-  const handleCopy = () => {
-    if (prompt?.content) {
-      navigator.clipboard.writeText(prompt.content);
+  // プロンプトIDのバリデーション
+  useEffect(() => {
+    if (!promptId || typeof promptId !== 'string') {
+      handleError(
+        new Error('無効なプロンプトIDです')
+      );
+      router.push('/');
+    }
+  }, [promptId, router, handleError]);
+
+  const handleCopy = async () => {
+    if (!prompt?.content) {
+      toast.error('コピーする内容がありません');
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(prompt.content);
       setCopied(true);
+      toast.success('プロンプトをコピーしました');
       setTimeout(() => setCopied(false), 2000);
+    } catch {
+      handleError(new Error('クリップボードへのコピーに失敗しました'));
     }
   };
 
@@ -168,11 +193,11 @@ export default function PromptDetailPage() {
           </div>
           <div className="flex items-center gap-2">
             <LikeButton 
-              promptId={prompt._id as any}
+              promptId={prompt._id as Id<"prompts">}
               initialLikeCount={prompt.likeCount}
             />
             <BookmarkButton 
-              promptId={prompt._id as any}
+              promptId={prompt._id as Id<"prompts">}
               initialBookmarkCount={prompt.bookmarkCount}
             />
           </div>

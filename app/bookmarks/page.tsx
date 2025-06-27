@@ -47,9 +47,9 @@ export default function BookmarksPage() {
               {bookmarkedPrompts.length}件のブックマーク
             </p>
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {bookmarkedPrompts.map((prompt) => (
-                <PromptCard key={prompt._id} prompt={prompt} />
-              ))}
+              {bookmarkedPrompts.map((prompt) => 
+                prompt && <PromptCard key={prompt._id} prompt={prompt} />
+              )}
             </div>
           </>
         )}

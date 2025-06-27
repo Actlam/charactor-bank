@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
+import { Id } from "@/convex/_generated/dataModel";
 import {
   Dialog,
   DialogContent,
@@ -36,7 +37,7 @@ export function DeletePromptDialog({
     setIsDeleting(true);
     
     try {
-      await deletePrompt({ promptId: promptId as any });
+      await deletePrompt({ promptId: promptId as Id<"prompts"> });
       setOpen(false);
       onSuccess();
     } catch (error) {

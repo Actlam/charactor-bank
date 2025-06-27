@@ -35,7 +35,7 @@ describe('useStoreUser Hook', () => {
       imageUrl: 'https://example.com/avatar.jpg',
     }
 
-    ;(useUser as jest.Mock).mockReturnValue({
+    ;(useUser as Mock).mockReturnValue({
       user: mockUser,
       isSignedIn: true,
     })
@@ -57,7 +57,7 @@ describe('useStoreUser Hook', () => {
       imageUrl: null,
     }
 
-    ;(useUser as jest.Mock).mockReturnValue({
+    ;(useUser as Mock).mockReturnValue({
       user: mockUser,
       isSignedIn: true,
     })
@@ -80,7 +80,7 @@ describe('useStoreUser Hook', () => {
       username: 'testuser',
     }
 
-    ;(useUser as jest.Mock).mockReturnValue({
+    ;(useUser as Mock).mockReturnValue({
       user: mockUser,
       isSignedIn: true,
     })

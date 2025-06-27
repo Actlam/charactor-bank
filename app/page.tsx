@@ -4,9 +4,8 @@ import Link from "next/link";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { PromptCard } from "@/components/prompt-card";
-import { Clock, Heart, Eye, TrendingUp, Sparkles, BarChart3 } from "lucide-react";
+import { Clock, Heart, TrendingUp, Sparkles, BarChart3 } from "lucide-react";
 
 export default function Home() {
   const categories = useQuery(api.categories.getAllCategories);

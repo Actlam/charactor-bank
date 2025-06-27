@@ -1,9 +1,24 @@
 import { describe, it, expect, vi, beforeEach, Mock } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import { Navbar } from '@/components/navbar'
-import { useAuth } from '@clerk/nextjs'
+import { useAuth, useUser } from '@clerk/nextjs'
 
-vi.mock('@clerk/nextjs')
+// Clerk関連のモック
+vi.mock('@clerk/nextjs', () => ({
+  useAuth: vi.fn(),
+  useUser: vi.fn(),
+  useClerk: vi.fn(() => ({
+    signOut: vi.fn()
+  })),
+  SignInButton: ({ children }: { children: React.ReactNode }) => <button>{children}</button>,
+  SignUpButton: ({ children }: { children: React.ReactNode }) => <button>{children}</button>,
+  UserButton: () => <div data-testid="user-button">User Button</div>
+}))
+
+// Convexのモック
+vi.mock('convex/react', () => ({
+  useQuery: vi.fn(() => null)
+}))
 
 describe('Navbar Component', () => {
   beforeEach(() => {
@@ -11,7 +26,12 @@ describe('Navbar Component', () => {
   })
 
   it('should render logo and navigation links', () => {
-    (useAuth as Mock).mockReturnValue({ isSignedIn: false })
+    (useAuth as Mock).mockReturnValue({ isSignedIn: false });
+    (useUser as Mock).mockReturnValue({ 
+      user: null,
+      isSignedIn: false,
+      isLoaded: true
+    })
     
     render(<Navbar />)
     
@@ -22,7 +42,12 @@ describe('Navbar Component', () => {
 
   describe('when user is not signed in', () => {
     beforeEach(() => {
-      (useAuth as Mock).mockReturnValue({ isSignedIn: false })
+      (useAuth as Mock).mockReturnValue({ isSignedIn: false });
+      (useUser as Mock).mockReturnValue({ 
+        user: null,
+        isSignedIn: false,
+        isLoaded: true
+      })
     })
 
     it('should show login and signup buttons', () => {
@@ -41,7 +66,12 @@ describe('Navbar Component', () => {
 
   describe('when user is signed in', () => {
     beforeEach(() => {
-      (useAuth as jest.Mock).mockReturnValue({ isSignedIn: true })
+      (useAuth as Mock).mockReturnValue({ isSignedIn: true });
+      (useUser as Mock).mockReturnValue({ 
+        user: { id: 'test-user-id', emailAddresses: [{ emailAddress: 'test@example.com' }] },
+        isSignedIn: true,
+        isLoaded: true
+      })
     })
 
     it('should show new post button', () => {
@@ -59,7 +89,12 @@ describe('Navbar Component', () => {
   })
 
   it('should have correct links', () => {
-    (useAuth as Mock).mockReturnValue({ isSignedIn: false })
+    (useAuth as Mock).mockReturnValue({ isSignedIn: false });
+    (useUser as Mock).mockReturnValue({ 
+      user: null,
+      isSignedIn: false,
+      isLoaded: true
+    })
     
     render(<Navbar />)
     

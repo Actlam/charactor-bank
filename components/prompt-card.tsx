@@ -5,8 +5,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Heart, Eye, Copy, Check } from "lucide-react";
 import { useState } from "react";
-import { formatDistanceToNow } from "date-fns";
-import { ja } from "date-fns/locale";
 
 interface PromptCardProps {
   prompt: {
